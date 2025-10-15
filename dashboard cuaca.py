@@ -1,3 +1,4 @@
+# app.py
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -16,7 +17,7 @@ st.set_page_config(
 
 st.title("🌤️ Dashboard Simulasi Cuaca Harian Indonesia")
 st.markdown("""
-Dashboard ini menampilkan **simulasi suhu, kelembaban, dan kecepatan angin** untuk seluruh provinsi di Indonesia.  
+Dashboard ini menampilkan **simulasi suhu, kelembaban, dan kecepatan angin** untuk seluruh provinsi di Indonesia.
 """)
 
 # ==========================
@@ -70,9 +71,12 @@ def simulasi_angin(prov):
     return round(angin, 1)
 
 def kategori_suhu(s):
-    if s < 25: return "❄️ Dingin"
-    elif s < 30: return "🌤️ Hangat"
-    else: return "🔥 Panas"
+    if s < 25:
+        return "❄️ Dingin"
+    elif s < 30:
+        return "🌤️ Hangat"
+    else:
+        return "🔥 Panas"
 
 # ==========================
 # 4. SIMULASI DATA
@@ -120,6 +124,7 @@ ax1.legend()
 ax1.grid(axis='x', linestyle='--', alpha=0.3)
 plt.tight_layout()
 st.pyplot(fig1)
+plt.close(fig1)
 
 # ==========================
 # 8. GRAFIK KELEMBABAN
@@ -133,6 +138,7 @@ ax2.legend()
 ax2.grid(axis='x', linestyle='--', alpha=0.3)
 plt.tight_layout()
 st.pyplot(fig2)
+plt.close(fig2)
 
 # ==========================
 # 9. GRAFIK KECEPATAN ANGIN
@@ -146,6 +152,7 @@ ax3.legend()
 ax3.grid(axis='x', linestyle='--', alpha=0.3)
 plt.tight_layout()
 st.pyplot(fig3)
+plt.close(fig3)
 
 # ==========================
 # 10. SIMULASI DINAMIS
@@ -153,24 +160,30 @@ st.pyplot(fig3)
 st.subheader("🔄 Simulasi Dinamis Fluktuasi Cuaca Nasional")
 
 progress = st.progress(0)
-chart = st.empty()
+placeholder = st.empty()
 x = np.linspace(0, 24, 100)
 
+# loop simulasi (80 tahapan)
 for i in range(80):
     suhu = rata_suhu + 4 * np.sin(2 * np.pi * x / 24) + np.random.normal(0, 0.4, len(x))
     lembab = rata_lembab + 5 * np.cos(2 * np.pi * x / 24) + np.random.normal(0, 1, len(x))
     angin = rata_angin + np.sin(2 * np.pi * x / 6) + np.random.normal(0, 0.2, len(x))
 
     fig, ax = plt.subplots(figsize=(8, 4))
-    ax.plot(x, suhu, 'r-', label='Suhu (°C)', linewidth=2)
-    ax.plot(x, lembab, 'b-', label='Kelembaban (%)', linewidth=1.5)
-    ax.plot(x, angin * 10, 'g--', label='Angin (x10 m/s)', linewidth=1.5)  # Skala biar sebanding
+    ax.plot(x, suhu, '-', label='Suhu (°C)', linewidth=2)
+    ax.plot(x, lembab, '-', label='Kelembaban (%)', linewidth=1.5)
+    ax.plot(x, angin * 10, '--', label='Angin (x10 m/s)', linewidth=1.5)  # skala agar terlihat
     ax.set_title(f"Simulasi ke-{i+1}: Fluktuasi Cuaca Harian")
     ax.set_xlabel("Jam")
     ax.grid(alpha=0.3)
     ax.legend()
-    chart.pyplot(fig)
-    progress.progress((i + 1) / 80)
+
+    placeholder.pyplot(fig)
+    plt.close(fig)
+
+    # update progress (0-100 integer)
+    progress_val = int((i + 1) / 80 * 100)
+    progress.progress(progress_val)
     time.sleep(0.05)
 
 st.success("✅ Simulasi dinamis selesai!")
